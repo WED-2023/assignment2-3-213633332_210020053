@@ -8,6 +8,7 @@ const recipe_utils = require("./utils/recipes_utils");
  * Authenticate all incoming requests by middleware
  */
 router.use(async function (req, res, next) {
+  console.log("req session and user_id", req.session,req.session.user_id);
   if (req.session && req.session.user_id) {
     DButils.execQuery("SELECT user_id FROM users").then((users) => {
       if (users.find((x) => x.user_id === req.session.user_id)) {
@@ -46,6 +47,50 @@ router.get('/favorites', async (req,res,next) => {
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
     const results = await recipe_utils.getRecipesPreview(recipes_id_array);
+    res.status(200).send(results);
+  } catch(error){
+    next(error); 
+  }
+});
+router.post('/createRecipe', async (req,res,next) => {
+  try{
+    const user_id = req.session.user_id
+    let recipe_details = {
+      title: req.body.title,
+      time: req.body.readyInMinutes,
+      image: req.body.image,
+      popularity: req.body.aggregateLikes,
+      vegan: req.body.vegan,
+      vegetarian: req.body.vegetarian,
+      glutenFree: req.body.glutenFree,
+      servings: req.body.servings,
+      ingredients: req.body.ingredients,
+      instructions: req.body.instructions
+    }
+    await user_utils.createRecipe(user_id,recipe_details);
+    res.status(200).send("The Recipe successfully saved as created");
+    } catch(error){
+    next(error);
+  }
+})
+//
+router.get('/created/fullView:userId:recipeId', async (req,res,next) => {//make sure /created/fullView:userId:recipeId is valid
+  try{
+    const user_id = req.session.user_id;
+    let recipe_id = req.body.recipe_id;
+    const results = await recipe_utils.getRecipeInformationFromDb(recipe_id);
+    res.status(200).send(results);
+  } catch(error){
+    next(error); 
+  }
+});
+router.get('/created/preView:userId', async (req,res,next) => {
+  try{
+    const user_id = req.session.user_id;
+    const recipes_id = await user_utils.getCreatedRecipes(user_id);
+    let recipes_id_array = [];
+    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
+    const results = await recipe_utils.getRecipesPreviewFromDb(recipes_id_array);
     res.status(200).send(results);
   } catch(error){
     next(error); 

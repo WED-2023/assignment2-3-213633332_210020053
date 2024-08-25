@@ -1,0 +1,581 @@
+openapi: 3.0.0
+info:
+  title: Recipes API
+  description: This API provides endpoints for recipe and user management
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/DAVIDMIL_1/RecipesApi/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: recipes
+  description: Endpoints related to recipes
+- name: users
+  description: Endpoints related to user management
+paths:
+  /recipes/random:
+    get:
+      tags:
+      - recipes
+      summary: Get 3 random recipes
+      operationId: getRandomRecipes
+      responses:
+        "200":
+          description: Successfully retrieved 3 random recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+        "400":
+          description: Invalid input
+  /recipes/recently-viewed/{userId}:
+    get:
+      tags:
+      - recipes
+      summary: Get 3 recently viewed recipes by user
+      operationId: getRecentlyViewedRecipes
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully retrieved 3 recently viewed recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+        "400":
+          description: Invalid input
+  /recipes/search:
+    get:
+      tags:
+      - recipes
+      summary: Get recipes with query
+      operationId: searchRecipes
+      parameters:
+      - name: query
+        in: query
+        description: Query string to search for recipes
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully retrieved recipes matching query
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+        "400":
+          description: Invalid input
+  /recipes/createRecipe:
+    post:
+      tags:
+      - recipes
+      summary: Create a new recipe
+      operationId: createRecipe
+      requestBody:
+        description: Recipe to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeFull'
+        required: true
+      responses:
+        "201":
+          description: Recipe created successfully
+        "400":
+          description: Invalid input
+  /recipes/view/{userId}/{recipeId}:
+    put:
+      tags:
+      - recipes
+      summary: Update user's view of a recipe
+      operationId: updateRecipeView
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: recipeId
+        in: path
+        description: ID of the recipe to update view
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Recipe view updated successfully
+        "400":
+          description: Invalid input
+  /recipes/favorite/{userId}/{recipeId}:
+    put:
+      tags:
+      - recipes
+      summary: Update if user saved to favorites a recipe
+      operationId: updateRecipeFavorite
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: recipeId
+        in: path
+        description: ID of the recipe to update favorite status
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Favorite status to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userId_recipeId_body'
+        required: true
+      responses:
+        "200":
+          description: Recipe favorite status updated successfully
+        "400":
+          description: Invalid input
+  /recipes/favorites/{userId}:
+    get:
+      tags:
+      - recipes
+      summary: Get user's favorite recipes
+      operationId: getUserFavoriteRecipes
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully retrieved user's favorite recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+        "400":
+          description: Invalid input
+  /recipes/created/{userId}:
+    get:
+      tags:
+      - recipes
+      summary: Get recipes created by user
+      operationId: getUserCreatedRecipes
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully retrieved user's created recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+        "400":
+          description: Invalid input
+  /recipes/viewed/{userId}/{recipeId}:
+    get:
+      tags:
+      - recipes
+      summary: Check if user viewed a recipe
+      operationId: checkRecipeViewed
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: recipeId
+        in: path
+        description: ID of the recipe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully checked if user viewed the recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "400":
+          description: Invalid input
+  /recipes/favorited/{userId}/{recipeId}:
+    get:
+      tags:
+      - recipes
+      summary: Check if user favorited a recipe
+      operationId: checkRecipeFavorited
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: recipeId
+        in: path
+        description: ID of the recipe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully checked if user favorited the recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "400":
+          description: Invalid input
+  /recipes/{recipeId}:
+    get:
+      tags:
+      - recipes
+      summary: Get full recipe details
+      operationId: getRecipeDetails
+      parameters:
+      - name: recipeId
+        in: path
+        description: ID of the recipe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully retrieved recipe details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeFull'
+        "400":
+          description: Invalid input
+  /users/register:
+    post:
+      tags:
+      - users
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        description: User to register
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "201":
+          description: User registered successfully
+        "400":
+          description: Invalid input
+        "409":
+          description: Username already exists
+  /users/login:
+    post:
+      tags:
+      - users
+      summary: User login
+      operationId: loginUser
+      requestBody:
+        description: User login credentials
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+        required: true
+      responses:
+        "200":
+          description: User logged in successfully
+        "401":
+          description: Invalid username or password
+components:
+  schemas:
+    RecipeFull:
+      required:
+      - aggregateLikes
+      - analyzedInstructions
+      - extendedIngredients
+      - glutenFree
+      - id
+      - image
+      - instructions
+      - readyInMinutes
+      - servings
+      - summary
+      - title
+      - vegan
+      - vegetarian
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 716429
+        image:
+          type: string
+          example: cauliflower-pasta.jpg
+        title:
+          type: string
+          example: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs"
+        readyInMinutes:
+          type: integer
+          example: 45
+        aggregateLikes:
+          type: integer
+          example: 209
+        vegetarian:
+          type: boolean
+          example: false
+        vegan:
+          type: boolean
+          example: true
+        glutenFree:
+          type: boolean
+          example: false
+        summary:
+          type: string
+          example: "You can never have too many main course recipes, so give Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs a try. One serving contains <b>543 calories</b>, <b>17g of protein</b>, and <b>16g of fat</b>. For <b>$1.57 per serving</b>, this recipe <b>covers 22%</b> of your daily requirements of vitamins and minerals. This recipe serves 2. A mixture of butter, white wine, pasta, and a handful of other ingredients are all it takes to make this recipe so yummy. 209 people have tried and liked this recipe. It is brought to you by fullbellysisters.blogspot.com. From preparation to the plate, this recipe takes approximately <b>45 minutes</b>. Taking all factors into account, this recipe <b>earns a spoonacular score of 83%</b>, which is tremendous. If you like this recipe, take a look at these similar recipes:  <a href=\"https://spoonacular.com/recipes/pasta-with-garlic-scallions-cauliflower-breadcrumbs-1230187\"> Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs</a>, <a href=\"https://spoonacular.com/recipes/pasta-with-garlic-scallions-cauliflower-breadcrumbs-1229807\"> Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs</a>, and <a href=\"https://spoonacular.com/recipes/pasta-with-garlic-scallions-cauliflower-breadcrumbs-1229669\"> Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs</a>."
+        analyzedInstructions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeFull_analyzedInstructions'
+        instructions:
+          type: string
+          example: "Bring a large pot of salted water to a boil. Add the pasta and cook according to the package instructions until al dente. Drain and set aside. In a large skillet, heat 1 tablespoon of olive oil over medium heat. Add the breadcrumbs and cook, stirring frequently, until golden and crisp, about 3-5 minutes. Transfer the breadcrumbs to a small bowl and set aside. In the same skillet, heat the remaining tablespoon of olive oil over medium heat. Add the garlic and cook until fragrant, about 1 minute. Add the scallions (white parts) and cook until softened, about 2-3 minutes. Add the cauliflower florets, salt, and pepper, and cook until the cauliflower is tender and starting to brown, about 8-10 minutes. Pour in the white wine and cook until mostly evaporated, about 2 minutes. Add the cooked pasta to the skillet and toss to combine. Remove from heat and stir in the grated cheese and the green parts of the scallions. Serve the pasta topped with the toasted breadcrumbs and a sprinkle of red pepper flakes, if using."
+        extendedIngredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeFull_extendedIngredients'
+        servings:
+          type: integer
+          example: 2
+    Recipe:
+      required:
+      - id
+      - image
+      - ingredients
+      - instructions
+      - readyInMinutes
+      - servings
+      - title
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        title:
+          type: string
+          example: Spaghetti Carbonara
+        ingredients:
+          type: array
+          items:
+            type: string
+            example: 200g spaghetti
+        instructions:
+          type: array
+          items:
+            type: string
+            example: Cook the spaghetti according to package instructions.
+        image:
+          type: string
+          format: url
+          example: https://www.example.com/images/spaghetti.jpg
+        servings:
+          type: integer
+          example: 4
+        readyInMinutes:
+          type: integer
+          example: 30
+    User:
+      required:
+      - country
+      - email
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+          description: "Must be between 3 and 8 characters long, contain only letters, and be unique"
+          example: johndoe
+        email:
+          type: string
+          format: email
+          example: johndoe@example.com
+        password:
+          type: string
+          description: "Must be between 5 and 10 characters long, contain at least one number and one special character"
+          format: password
+          example: mysecurepassword1!
+        country:
+          type: string
+          description: Selected from a pre-existing JSON file
+          example: USA
+    UserLogin:
+      required:
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+          example: johndoe
+        password:
+          type: string
+          format: password
+          example: mysecurepassword1!
+    userId_recipeId_body:
+      type: object
+      properties:
+        favorite:
+          type: boolean
+          description: Whether the recipe is favorited or not
+    inline_response_200:
+      type: object
+      properties:
+        viewed:
+          type: boolean
+          description: Whether the user viewed the recipe or not
+    inline_response_200_1:
+      type: object
+      properties:
+        favorited:
+          type: boolean
+          description: Whether the user favorited the recipe or not
+    RecipeFull_steps:
+      type: object
+      properties:
+        number:
+          type: integer
+          example: 1
+        step:
+          type: string
+          example: Bring a large pot of salted water to a boil. Add the pasta and cook according to the package instructions until al dente. Drain and set aside.
+    RecipeFull_analyzedInstructions:
+      type: object
+      properties:
+        name:
+          type: string
+          example: ""
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeFull_steps'
+    RecipeFull_measures_us:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+          example: 1
+        unitShort:
+          type: string
+          example: Tbsp
+        unitLong:
+          type: string
+          example: Tbsp
+    RecipeFull_measures:
+      type: object
+      properties:
+        us:
+          $ref: '#/components/schemas/RecipeFull_measures_us'
+        metric:
+          $ref: '#/components/schemas/RecipeFull_measures_us'
+    RecipeFull_extendedIngredients:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1001
+        aisle:
+          type: string
+          example: "Milk, Eggs, Other Dairy"
+        image:
+          type: string
+          example: butter-sliced.jpg
+        consistency:
+          type: string
+          example: SOLID
+        name:
+          type: string
+          example: butter
+        nameClean:
+          type: string
+          example: butter
+        original:
+          type: string
+          example: 1 tbsp butter
+        originalName:
+          type: string
+          example: butter
+        amount:
+          type: number
+          format: float
+          example: 1
+        unit:
+          type: string
+          example: tbsp
+        meta:
+          type: array
+          items:
+            type: string
+            example: "[]"
+        measures:
+          $ref: '#/components/schemas/RecipeFull_measures'
