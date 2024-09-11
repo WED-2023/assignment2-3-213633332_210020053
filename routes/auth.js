@@ -9,6 +9,7 @@ router.post("/Register", async (req, res, next) => {
     // parameters exists
     // valid parameters
     // username exists
+    console.log(`Received password: ${req.body.password}`);
     let user_details = {
       username: req.body.username,
       firstname: req.body.firstname,
@@ -16,7 +17,7 @@ router.post("/Register", async (req, res, next) => {
       country: req.body.country,
       password: req.body.password,
       email: req.body.email,
-      profilePic: req.body.profilePic
+      
     }
     let users = [];
     users = await DButils.execQuery("SELECT username from users");
@@ -24,15 +25,20 @@ router.post("/Register", async (req, res, next) => {
     if (users.find((x) => x.username === user_details.username))
       throw { status: 409, message: "Username taken" };
 
+    console.log('Password:', user_details.password);
+    console.log('Salt Rounds:', process.env.bcrypt_saltRounds);
     // add the new username
     let hash_password = bcrypt.hashSync(
       user_details.password,
       parseInt(process.env.bcrypt_saltRounds)
     );
+    console.log("user details: "+user_details)
     await DButils.execQuery(
-      `INSERT INTO users VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
+      `INSERT INTO users (username, firstname, lastname, country, password, email) VALUES('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
       '${user_details.country}', '${hash_password}', '${user_details.email}')`
     );
+    
+
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
     next(error);
@@ -62,7 +68,7 @@ router.post("/Login", async (req, res, next) => {
 
 
     // return cookie
-    res.status(200).send({ message: "login succeeded", success: true });
+    res.status(200).send({ message: "login succeeded", success: true, userId: user.user_id });
   } catch (error) {
     next(error);
   }
