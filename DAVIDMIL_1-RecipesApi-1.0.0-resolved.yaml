@@ -1,0 +1,428 @@
+openapi: 3.0.0
+info:
+  title: Recipe Management API
+  description: "API for managing recipes, user authentication, and favorites."
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/DAVIDMIL_1/RecipesApi/1.0.0
+  description: SwaggerHub API Auto Mocking
+paths:
+  /Register:
+    post:
+      summary: Register a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        "409":
+          description: Username already taken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_409'
+  /Login:
+    post:
+      summary: Login a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login_body'
+      responses:
+        "200":
+          description: Login succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "401":
+          description: Username or password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_401'
+  /Logout:
+    post:
+      summary: Logout a user
+      responses:
+        "200":
+          description: Logout succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /recipes/search:
+    get:
+      summary: Search for recipes
+      parameters:
+      - name: recipeName
+        in: query
+        description: Name of the recipe to search for
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: cuisine
+        in: query
+        description: Type of cuisine
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: diet
+        in: query
+        description: Type of diet
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: intolerance
+        in: query
+        description: Food intolerance
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: number
+        in: query
+        description: Number of recipes to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 5
+      responses:
+        "200":
+          description: Recipe search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+  /recipes/fullview/{recipeId}:
+    get:
+      summary: Get full details of a recipe
+      parameters:
+      - name: recipeId
+        in: path
+        description: ID of the recipe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Details of a recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+  /recipes/preview/{recipeId}:
+    get:
+      summary: Get preview of a recipe
+      parameters:
+      - name: recipeId
+        in: path
+        description: ID of the recipe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Details of a recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+  /recipes/random:
+    get:
+      summary: Get random recipes
+      parameters:
+      - name: numOfRecipes
+        in: query
+        description: Number of random recipes to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 1
+      responses:
+        "200":
+          description: Random recipe(s)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+  /users/favorites:
+    get:
+      summary: Get favorite recipes
+      responses:
+        "200":
+          description: List of favorite recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+    post:
+      summary: Mark a recipe as favorite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/users_favorites_body'
+      responses:
+        "200":
+          description: Mark recipe as favorite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+  /users/createRecipe:
+    post:
+      summary: Create a new recipe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+      responses:
+        "201":
+          description: Recipe created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+  /users/created/fullView/{userId}/{recipeId}:
+    get:
+      summary: Get full details of a created recipe
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: recipeId
+        in: path
+        description: ID of the recipe
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Details of a recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+  /users/created/preView/{userId}:
+    get:
+      summary: Get previews of created recipes
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: List of created recipe previews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+components:
+  schemas:
+    User:
+      required:
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        country:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+    Recipe:
+      required:
+      - instructions
+      - readyInMinutes
+      - servings
+      - title
+      type: object
+      properties:
+        title:
+          type: string
+        image:
+          type: string
+        summary:
+          type: string
+        extendedIngredients:
+          type: array
+          items:
+            type: object
+        instructions:
+          type: string
+        servings:
+          type: integer
+        readyInMinutes:
+          type: integer
+        vegetarian:
+          type: string
+        vegan:
+          type: string
+        glutenFree:
+          type: string
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    inline_response_409:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 409
+        message:
+          type: string
+          example: Username taken
+    Login_body:
+      required:
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    inline_response_200:
+      type: object
+      properties:
+        message:
+          type: string
+          example: login succeeded
+        success:
+          type: boolean
+          example: true
+        userId:
+          type: string
+          example: user_id
+    inline_response_401:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 401
+        message:
+          type: string
+    users_favorites_body:
+      required:
+      - recipeId
+      type: object
+      properties:
+        recipeId:
+          type: string
+    inline_response_200_1:
+      type: object
+      properties:
+        message:
+          type: string
+        success:
+          type: boolean
+  responses:
+    FavoriteResponse:
+      description: Mark recipe as favorite response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_response_200_1'
+    UserCreated:
+      description: User created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+    LoginSuccess:
+      description: Login succeeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_response_200'
+    RecipeDetails:
+      description: Details of a recipe
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Recipe'
+    LogoutSuccess:
+      description: Logout succeeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+    RecipeCreated:
+      description: Recipe created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Recipe'
+  parameters:
+    RecipeIdParam:
+      name: recipeId
+      in: path
+      description: ID of the recipe
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    UserIdParam:
+      name: userId
+      in: path
+      description: ID of the user
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
